@@ -3,6 +3,7 @@ package com.finance.papertrader.models;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
+import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Min;
 import java.math.BigDecimal;
 
@@ -15,6 +16,7 @@ public class PortfolioHolding {
     @Column(name = "holding_id")
     private Integer id;
 
+    // Need to ignore portfolio when serializing to avoid stack overflow
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToOne
     @JoinColumn(name = "portfolio_id", nullable = false)
@@ -28,6 +30,7 @@ public class PortfolioHolding {
     @Column(name = "quantity")
     private Integer quantity;
 
+    @DecimalMin(value = "0.01")
     @Column(name = "purchase_price", nullable = false)
     private BigDecimal purchasePrice;
 
@@ -72,5 +75,9 @@ public class PortfolioHolding {
 
     public void setPurchasePrice(BigDecimal purchasePrice) {
         this.purchasePrice = purchasePrice;
+    }
+
+    public BigDecimal getTotalPurchasePrice() {
+        return purchasePrice.multiply(BigDecimal.valueOf(quantity));
     }
 }
