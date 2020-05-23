@@ -103,6 +103,10 @@ public class Portfolio {
         this.cash = this.cash.subtract(amount);
     }
 
+    public void credit(BigDecimal amount) {
+        this.cash = this.cash.add(amount);
+    }
+
     @Override
     public String toString() {
         return String.format("Portfolio [id = %d]", this.id);

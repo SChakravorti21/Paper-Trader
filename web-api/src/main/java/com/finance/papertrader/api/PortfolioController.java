@@ -79,4 +79,30 @@ public class PortfolioController {
         return this.portfolioRepository.save(updatedPortfolio);
     }
 
+    @Transactional
+    @PostMapping(path = "/sell")
+    public Portfolio sellStock(@RequestBody PortfolioHolding _holding) {
+        // TODO: set current price properly once ticker data can be scraped
+        BigDecimal currentPrice = BigDecimal.valueOf(164.97);
+
+        // Look up the portfolio and purchase the stock with available cash
+        Optional<PortfolioHolding> holding = this.holdingRepository.findById(_holding.getId());
+        Optional<Portfolio> portfolio = this.portfolioRepository.findById(_holding.getPortfolio().getId());
+
+        if (!portfolio.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Portfolio not found");
+        } else if (!holding.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Portfolio holding not found");
+        }
+
+        Portfolio updatedPortfolio = portfolio.get();
+        BigDecimal quantity = BigDecimal.valueOf(holding.get().getQuantity());
+        BigDecimal sellPrice = currentPrice.multiply(quantity);
+        updatedPortfolio.credit(sellPrice);
+
+        // Persist changes to the portfolio (remove this holding and persist credit)
+        this.holdingRepository.delete(holding.get());
+        return this.portfolioRepository.save(updatedPortfolio);
+    }
+
 }
