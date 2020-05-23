@@ -1,5 +1,6 @@
 package com.finance.papertrader.api;
 
+import com.finance.papertrader.api.requests.user.CreateUser;
 import com.finance.papertrader.models.User;
 import com.finance.papertrader.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +33,9 @@ public class UserController {
     }
 
     @PostMapping(path = "/register")
-    public User createUser(@RequestBody User user) {
-        return this.userRepository.save(user);
+    public CreateUser.Response createUser(@RequestBody CreateUser.Request request) {
+        User user = this.userRepository.save(new User(request.getUsername()));
+        return new CreateUser.Response(user.getUsername());
     }
 
 }

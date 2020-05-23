@@ -1,15 +1,21 @@
 package com.finance.papertrader.models;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.Valid;
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "portfolio")
 public class Portfolio {
@@ -31,8 +37,6 @@ public class Portfolio {
     @Column(name = "cash", nullable = false)
     private BigDecimal cash;
 
-    // Need to ignore user when serializing to avoid stack overflow
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToOne
     @JoinColumn(name = "username", nullable = false)
     private User user;
@@ -42,61 +46,10 @@ public class Portfolio {
             orphanRemoval = true,
             mappedBy = "portfolio"  // portfolio_id in portfolio_holding table
     )
-    private List<PortfolioHolding> holdings = new ArrayList<>();
-
-    protected Portfolio() {
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getPortfolioName() {
-        return portfolioName;
-    }
-
-    public void setPortfolioName(String portfolioName) {
-        this.portfolioName = portfolioName;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public List<PortfolioHolding> getHoldings() {
-        return holdings;
-    }
-
-    public void setHoldings(List<PortfolioHolding> holdings) {
-        this.holdings = holdings;
-    }
+    private List<PortfolioHolding> holdings;
 
     public void addHolding(@Valid PortfolioHolding holding) {
         this.holdings.add(holding);
-    }
-
-    public BigDecimal getStartingAmount() {
-        return startingAmount;
-    }
-
-    public void setStartingAmount(BigDecimal startingAmount) {
-        this.startingAmount = startingAmount;
-    }
-
-    public BigDecimal getCash() {
-        return cash;
-    }
-
-    public void setCash(BigDecimal cash) {
-        this.cash = cash;
     }
 
     public void spend(BigDecimal amount) {
@@ -107,8 +60,4 @@ public class Portfolio {
         this.cash = this.cash.add(amount);
     }
 
-    @Override
-    public String toString() {
-        return String.format("Portfolio [id = %d]", this.id);
-    }
 }
